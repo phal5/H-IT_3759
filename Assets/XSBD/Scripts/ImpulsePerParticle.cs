@@ -19,7 +19,7 @@ public class ImpulsePerParticle : MonoBehaviour
     [SerializeField] Vector3[] _velocities;
     Vector3[,] _accelerationBuffer;
     Vector3[] _sums;
-    [SerializeField] Vector3[] _impulses;
+    public Vector3[] _impulses { get; private set; }
     Transform _particleSystemTransform;
     // Start is called before the first frame update
     void Start()
@@ -51,7 +51,6 @@ public class ImpulsePerParticle : MonoBehaviour
         for(int i = 0; i < _impulses.Length; i++)
         {
             _impulses[i] = _sums[i] * _particleMass * _invBufferSize * Time.fixedDeltaTime;
-            if (_impulses[i].y < -10) print(_impulses[i].y);
         }
     }
 
