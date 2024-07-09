@@ -20,10 +20,11 @@ public class ImpulsePerParticle : MonoBehaviour
     Vector3[,] _accelerationBuffer;
     Vector3[] _sums;
     [SerializeField] Vector3[] _impulses;
-
+    Transform _particleSystemTransform;
     // Start is called before the first frame update
     void Start()
     {
+        _particleSystemTransform = _system.transform;
         _invBufferSize = 1.0f / Time.fixedDeltaTime;
         _invDeltaTime = 1.0f / Time.fixedDeltaTime;
 
@@ -46,13 +47,11 @@ public class ImpulsePerParticle : MonoBehaviour
 
     void CalculateImpulse()
     {
+        
         for(int i = 0; i < _impulses.Length; i++)
         {
-            Vector3 imp = _sums[i] * _particleMass * _invBufferSize;
-            _impulses[i] = 
-                imp.x * transform.right +
-                imp.y * transform.up +
-                imp.z * transform.forward;
+            _impulses[i] = _sums[i] * _particleMass * _invBufferSize * Time.fixedDeltaTime;
+            if (_impulses[i].y < -10) print(_impulses[i].y);
         }
     }
 
@@ -60,16 +59,17 @@ public class ImpulsePerParticle : MonoBehaviour
     {
         for (int i = 0; i < _system.particleCount; ++i)
         {
-            if (_particles[i].remainingLifetime > _lifetimes[i]) ResetData(i);
+            if (_particles[i].remainingLifetime > _lifetimes[i] || _particles[i].remainingLifetime == 0) ResetData(i);
             else
             {
                 _sums[i] -= _accelerationBuffer[i, _bufferIndex];
 
                 _lifetimes[i] = _particles[i].remainingLifetime;
 
-                _accelerationBuffer[i, _bufferIndex] = (_velocities[i] - _particles[i].velocity) * _invDeltaTime;
+                _accelerationBuffer[i, _bufferIndex] =
+                    (_velocities[i] - (_velocities[i] = _particleSystemTransform.TransformDirection(_particles[i].velocity))) * _invDeltaTime;
+
                 _sums[i] += _accelerationBuffer[i, _bufferIndex];
-                _velocities[i] = _particles[i].velocity;
             }
         }
         if(++_bufferIndex == _bufferSize)
@@ -81,7 +81,7 @@ public class ImpulsePerParticle : MonoBehaviour
     void ResetData(int i)
     {
         _lifetimes[i] = _particles[i].remainingLifetime;
-        _velocities[i] = _particles[i].velocity;
+        _velocities[i] = _particleSystemTransform.TransformDirection(_particles[i].velocity);
         _sums[i] = Vector3.zero;
         _accelerationBuffer[i, _bufferIndex] = Vector3.zero;
     }
