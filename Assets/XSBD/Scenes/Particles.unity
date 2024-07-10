@@ -5164,10 +5164,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _system: {fileID: 1883671486}
-  _bufferSize: 10
+  _bufferSize: 1
   _particleMass: 1
   _velocities: []
-  _impulses: []
 --- !u!1 &1944669887
 GameObject:
   m_ObjectHideFlags: 0
